@@ -1,8 +1,4 @@
 package main
-/*
-import (
-  "encoding/json"
-)
 
 type Student struct {
   NetID string `json: "id"`
@@ -13,4 +9,4 @@ type Student struct {
   Rating string `json: "rating"`
 }
 
-type Students []Student*/
+type Students []Student
