@@ -1,11 +1,14 @@
 package main
 
+// TODO: create REAL test.go
+
 import (
   "log"
   "net/http"
   "encoding/json"
   "fmt"
   "gopkg.in/mgo.v2"
+//  "gopkg.in/mgo.v2/bson"
   "io/ioutil"
   "time"
   "github.com/gorilla/mux"
@@ -15,6 +18,7 @@ import (
 //      GLOBALS
 ////////////////////////////
 
+// This is the hack that caused us to use a single file
 var Database *mgo.Database
 
 ////////////////////////////
@@ -22,7 +26,6 @@ var Database *mgo.Database
 ////////////////////////////
 
 func main() {
-  //var err *string
   session, err := mgo.Dial("mongodb://localhost:27017")
   if err != nil {
     fmt.Printf("Error: bad mgo")
@@ -38,6 +41,7 @@ func main() {
 //      Student.go
 ////////////////////////////
 
+// TODO: change the string type of netid to bson.ObjectId, then test
 type Student struct {
   NetID string `json: "id" bson: "id"`
   Name string `json: "name" bson: "name"`
@@ -150,31 +154,32 @@ func Logger(inner http.Handler, name string) http.Handler {
 ////////////////////////////
 
 func Index(w http.ResponseWriter, r *http.Request) {
-  fmt.Fprintf(w, "Welcome!")
+  fmt.Fprintf(w, "Welcome!\nProject by: Shahan, Edward, Shina, Tim\n")
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
+  // decode the json
   var s Student
   b, _ := ioutil.ReadAll(r.Body)
-  err1 := json.Unmarshal(b, &s)
-  if err1 != nil {
-    fmt.Fprintf(w, "Error: json decode")
+  err := json.Unmarshal(b, &s)
+  if err != nil {
+    fmt.Fprintf(w, "Error: json decode\n")
     return
   }
-
+  // store in database
   students := Database.C("students").With(Database.Session.Copy())
-
-  err2 := students.Insert(s)
-  if err2 != nil {
-    fmt.Fprintf(w, "Error: db insert")
+  err = students.Insert(s)
+  if err != nil {
+    fmt.Fprintf(w, "Error: mongodb insert\n")
   } else {
-    fmt.Fprintf(w, "Success")
+    fmt.Fprintf(w, "Success\n")
   }
 }
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
   v := r.URL.Query()
   name := v["name"]
+  // change this to grab database entry
   fmt.Fprintln(w, "Got a student:", name[0])
 }
 
@@ -182,6 +187,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
   var y YearQuery
   b, _ := ioutil.ReadAll(r.Body)
   err := json.Unmarshal(b, &y)
+  // once has the name, delete it
   if err != nil {
     fmt.Fprintf(w, "Error: json decode")
   } else {
@@ -190,15 +196,14 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
+  // add stuff in here
 }
 
 func ListHandler(w http.ResponseWriter, r *http.Request) {
   students := Database.C("students").With(Database.Session.Copy())
-
-  iter := students.Find({}).Iter()
   var s Student
-  for iter.Next(s) {
-    fmt.Fprintf(w, "next...")
+  iter := students.Find(nil).Iter()
+  for iter.Next(&s) {
     fmt.Fprintf(w, "Student: %v\n", s)
   }
 }
