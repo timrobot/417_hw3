@@ -14,15 +14,17 @@ func Index(w http.ResponseWriter, r *http.Request) {
   fmt.Fprintf(w, "Welcome!")
 }
 
+// Return a status for any sendback
+
 func PostHandler(w http.ResponseWriter, r *http.Request) {
   var s Student
   b, _ := ioutil.ReadAll(r.Body)
   err := json.Unmarshal(b, &s)
   if err != nil {
-    fmt.Printf("Error: json decode");
+    fmt.Printf("Error: json decode")
     fmt.Fprintf(w, "Error: json decode")
   } else {
-    fmt.Fprintln(w, "Success")
+    fmt.Fprintf(w, "Success")
   }
 }
 
@@ -33,12 +35,18 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
-  resp, err :=
-  // Complete this method
+  var y YearQuery
+  b, _ := ioutil.ReadAll(r.Body)
+  err := json.Unmarshal(b, &y)
+  if err != nil {
+    fmt.Printf("Error: json decode")
+    fmt.Fprintf(w, "Error: json decode")
+  } else {
+    fmt.Fprintln(w, "Year", y.Year)
+  }
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
-  // Complete this method
 }
 
 func ListHandler(w http.ResponseWriter, r *http.Request) {
